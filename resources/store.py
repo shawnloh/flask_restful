@@ -9,22 +9,22 @@ class Store(Resource):
             return store.json()
 
         return {
-                   'message': 'Store not found'
-               }, 404
+            'message': 'Store not found'
+        }, 404
 
     def post(self, name):
         if StoreModel.find_by_name(name):
             return {
-                       'message': 'A store with name {} already exists.'.format(name)
-                   }, 400
+                'message': 'A store with name {} already exists.'.format(name)
+            }, 400
 
         store = StoreModel(name)
         try:
             store.save_to_db()
         except:
             return {
-                       'message': 'An error occurred while creating the store.'
-                   }, 500
+                'message': 'An error occurred while creating the store.'
+            }, 500
 
         return store.json(), 201
 
@@ -41,5 +41,5 @@ class Store(Resource):
 class StoreList(Resource):
     def get(self):
         return {
-            'stores': [store.json() for store in StoreModel.query.all()]
+            'stores': [store.json() for store in StoreModel.find_all()]
         }

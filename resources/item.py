@@ -1,30 +1,31 @@
 from flask_restful import reqparse, Resource
-from flask_jwt import jwt_required
+from flask_jwt_extended import jwt_required
 
 from models.item import ItemModel
 
 
 class Item(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('price', type=float, required=True, help="Price is required")
-    parser.add_argument('store_id', type=int, required=True, help="Store id is required")
+    parser.add_argument('price', type=float, required=True,
+                        help="Price is required")
+    parser.add_argument('store_id', type=int, required=True,
+                        help="Store id is required")
 
-    @jwt_required()
+    @jwt_required
     def get(self, name):
-        print('came here')
         item = ItemModel.find_by_name(name)
         if item:
             return item.json()
 
         return {
-                   'message': 'Item not found'
-               }, 404
+            'message': 'Item not found'
+        }, 404
 
     def post(self, name):
         if ItemModel.find_by_name(name):
             return {
-                       'message': 'Item with name {} already exist'.format(name)
-                   }, 400
+                'message': 'Item with name {} already exist'.format(name)
+            }, 400
 
         data = Item.parser.parse_args()
 
@@ -33,8 +34,8 @@ class Item(Resource):
             item.save_to_db()
         except:
             return {
-                       'message': 'An error occurred inserting the item.'
-                   }, 500
+                'message': 'An error occurred inserting the item.'
+            }, 500
 
         return item.json(), 201
 
@@ -64,9 +65,9 @@ class Item(Resource):
 
 class ItemList(Resource):
     def get(self):
-        # return {
-        #     'items': [item.json() for item in ItemModel.query.all()]
-        # }
         return {
-            'items': list(map(lambda x: x.json(), ItemModel.query.all()))
+            'items': [item.json() for item in ItemModel.find_all()]
         }
+        # return {
+        #     'items': list(map(lambda x: x.json(), ItemModel.query.all()))
+        # }
